@@ -4,42 +4,58 @@
   <meta charset="UTF-8" />
   <title>Flashcards App</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
   <div class="app">
     <header class="app-header">
       <h1>Flashcards</h1>
-      <button type="button">New Deck</button>
+      <button type="button" data-action="new-deck" aria-haspopup="dialog">New Deck</button>
     </header>
 
     <div class="app-layout">
-      <nav class="sidebar" aria-label="Decks">
+      <nav class="sidebar" aria-label="Decks and cards">
         <h2>Decks</h2>
-        <ul>
-          <li><button type="button">Sample Deck 1</button></li>
-          <li><button type="button">Sample Deck 2</button></li>
+        <ul class="decks" aria-label="Available decks">
+          <!-- deck items rendered here -->
+        </ul>
+        <div id="decks-empty" class="empty-state" role="status" aria-live="polite" hidden>
+          <!-- accessible empty state for no decks -->
+          <svg aria-hidden="true" width="48" height="48" viewBox="0 0 24 24"><path fill="currentColor" d="M3 5h18v2H3zM3 11h18v2H3zM3 17h18v2H3z"/></svg>
+          <p><strong>No decks yet</strong></p>
+          <p>Create a deck to start adding cards.</p>
+          <button type="button" data-action="open-new-deck">Create deck</button>
+        </div>
+
+        <h3>Cards</h3>
+        <ul id="card-list" class="card-list" aria-label="Cards in deck">
+          <!-- card items rendered here -->
         </ul>
       </nav>
 
       <main class="main">
         <section class="deck-area" aria-label="Current deck">
-          <h2>Deck Title</h2>
+          <h2 id="deck-title">Deck Title</h2>
 
           <section class="toolbar" aria-label="Deck tools">
-            <input type="search" placeholder="Search cards…" />
-            <button type="button">Shuffle</button>
-            <button type="button">New Card</button>
+            <input id="search" type="search" placeholder="Search cards…" />
+            <div id="searchCount" class="search-count" aria-live="polite">0 matches</div>
+            <button type="button" data-action="shuffle">Shuffle</button>
+            <button type="button" data-action="open-new-card">New Card</button>
           </section>
 
-          <section class="card-area" aria-label="Flashcard">
-            <article class="card" tabindex="0">
-              <p>Card front / back content goes here.</p>
+          <section class="card-area" aria-label="Flashcard study area">
+            <article class="card" id="study-card" tabindex="0" aria-live="polite">
+              <div class="card-inner">
+                <div class="card-face card-front" id="card-front">Front</div>
+                <div class="card-face card-back" id="card-back">Back</div>
+              </div>
             </article>
 
             <div class="card-controls">
-              <button type="button">Previous</button>
-              <button type="button">Flip</button>
-              <button type="button">Next</button>
+              <button type="button" data-action="prev">Previous</button>
+              <button type="button" data-action="flip">Flip</button>
+              <button type="button" data-action="next">Next</button>
             </div>
           </section>
         </section>
@@ -50,5 +66,49 @@
       <p>Use the controls above to study your flashcards.</p>
     </footer>
   </div>
+
+  <!-- Card modal (create/edit) -->
+  <div class="modal" id="card-modal" role="dialog" aria-modal="true" aria-hidden="true">
+    <div class="modal-panel" role="document">
+      <header>
+        <h2 id="modal-title">New Card</h2>
+        <button type="button" class="modal-close" data-action="close-modal" aria-label="Close">&times;</button>
+      </header>
+
+      <form id="card-form">
+        <input type="hidden" name="index" value="-1" />
+        <label>
+          Front
+          <textarea name="front" required></textarea>
+        </label>
+        <label>
+          Back
+          <textarea name="back" required></textarea>
+        </label>
+
+        <div class="modal-actions">
+          <button type="submit" data-action="save-card">Save</button>
+          <button type="button" data-action="close-modal">Cancel</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Deck modal (create/edit) -->
+  <dialog id="deckModal" aria-labelledby="deckModalTitle">
+    <form id="deckForm" method="dialog">
+      <h3 id="deckModalTitle">New Deck</h3>
+      <label for="deckNameInput">Deck name</label>
+      <input id="deckNameInput" name="deckName" required aria-required="true" />
+      <menu>
+        <button type="submit">Save</button>
+        <button type="button" id="cancelDeckBtn">Cancel</button>
+      </menu>
+    </form>
+  </dialog>
+
+  <!-- storage helper script (must load before app.js) -->
+  <script src="storage.js" defer></script>
+  <script src="app.js" defer></script>
 </body>
 </html>
